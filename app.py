@@ -35,7 +35,7 @@ def build_system_prompt():
 5) Если клиент благодарит — отвечай:
    «Спасибо вам 🤍 Ждём снова в Yelena Heal Aura Studio».
 6) Если вопрос не связан с салоном, услугами, ценами, адресом, записью или благодарностью — НЕ отвечай вообще.
-   В таком случае верни строго строку: __NO_REPLY__
+   В таком случае верни строго строку: NO_REPLY
 7) Никогда не придумывай цены и услуги — отправляй только на ссылку с онлайн-записью.
 """
 
@@ -53,7 +53,7 @@ def ask_gpt(user_text: str) -> str:
         return resp.choices[0].message.content.strip()
     except Exception as e:
         print("OpenAI error:", e)
-        return "__NO_REPLY__"
+        return "NO_REPLY"
 
 # ----------- Flask -----------
 app = Flask(__name__)
@@ -86,7 +86,7 @@ def webhook():
 
             if sender_id and text:
                 reply = ask_gpt(text)
-                if reply.strip() != "__NO_REPLY__":
+                if reply.strip() != "NO_REPLY":
                     send_text(sender_id, reply)
 
     return "EVENT_RECEIVED", 200
@@ -108,5 +108,5 @@ def send_text(psid: str, text: str):
     except Exception as e:
         print("Send error:", e)
 
-if __name__ == "__main__":
+if name == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
