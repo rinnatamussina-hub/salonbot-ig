@@ -56,7 +56,7 @@ def ask_gpt(user_text: str) -> str:
         return "NO_REPLY"
 
 # ----------- Flask -----------
-app = Flask(__name__)
+app = Flask(__name__)   # fixed
 
 @app.route("/", methods=["GET"])
 def health():
@@ -77,12 +77,16 @@ def webhook():
     data = request.get_json(silent=True) or {}
     print("INCOMING:", json.dumps(data, ensure_ascii=False))
 
-    # Messenger-style events (IG DMs included)
     for entry in data.get("entry", []):
         for messaging in entry.get("messaging", []):
             sender_id = (messaging.get("sender") or {}).get("id")
             msg_obj   = messaging.get("message") or {}
-            text      = msg_obj.get("text")
+
+            # Ignore echo/test messages
+            if msg_obj.get("is_echo"):
+                continue
+
+            text = msg_obj.get("text")
 
             if sender_id and text:
                 reply = ask_gpt(text)
@@ -108,5 +112,5 @@ def send_text(psid: str, text: str):
     except Exception as e:
         print("Send error:", e)
 
-if __name__ == "__main__":
+if __name__ == "__main__":   # fixed
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
